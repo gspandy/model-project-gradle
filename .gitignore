@@ -1,0 +1,23 @@
+# Ignore Gradle output and cache directories
+build
+.gradle
+
+# Ignore Eclipse output directory
+bin
+
+# Ignore IDE configuration files. prefer automatic generation based on build
+# system metadata to avoid inadvertent inclusion of platform- or host-specific
+# entries
+
+# (Eclipse)
+.project
+.classpath
+.settings
+
+# (IDEA)
+*.iml
+*.ipr
+
+# Ignore vi(m) swap files
+*.sw?
+

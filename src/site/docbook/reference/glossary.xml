@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glossary xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="glossary"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+  <glossdiv>
+    <title>Spring Project Glossary</title>
+
+    <glossentry>
+      <glossterm>Foo</glossterm>
+
+      <glossdef>
+        <para>A metasyntactic variable</para>
+      </glossdef>
+    </glossentry>
+
+  </glossdiv>
+</glossary>

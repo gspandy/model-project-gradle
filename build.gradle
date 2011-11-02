@@ -1,0 +1,231 @@
+buildscript {
+    repositories {
+        mavenRepo url: 'https://repo.springsource.org/plugins-snapshot'
+    }
+    dependencies {
+        classpath 'org.springframework.build.bundlor:gradle-bundlor-plugin:1.0.0-SNAPSHOT'
+        classpath 'org.springframework.build.docbook:gradle-docbook-plugin:1.0.0-SNAPSHOT'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.0.x-SNAPSHOT'
+    }
+}
+
+allprojects {
+    group = 'org.springframework.project.gradle'
+    apply plugin: 'artifactory'
+}
+
+subprojects { subproj ->
+    apply plugin: 'maven'
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+    apply plugin: 'bundlor'
+
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+
+    xLintArg = '-Xlint:all'
+    [compileJava, compileTestJava]*.options*.compilerArgs = [xLintArg]
+
+    repositories {
+        mavenRepo url: 'https://repo.springsource.org/libs-snapshot'
+        mavenRepo url: 'https://repo.springsource.org/plugins-release'
+    }
+
+    dependencies {
+        compile 'log4j:log4j:1.2.16'
+        testCompile 'junit:junit:4.8.2'
+    }
+
+    bundlor {
+        enabled = true
+        failOnWarnings = true
+        bundleManifestVersion = 2
+        bundleVendor = 'SpringSource'
+        bundleName = project.description
+        bundleVersion = project.version
+        importTemplate = [
+            'org.apache.log4j.*;version="[1.2.16, 2.0.0)"'
+        ]
+    }
+
+    task sourcesJar(type: Jar, dependsOn:classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn:javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
+
+    install {
+        repositories.mavenInstaller {
+            customizePom(pom, subproj)
+        }
+    }
+}
+
+project(':spring-project-core') {
+    description = "Spring Project (Gradle) Core"
+    bundlor {
+        bundleSymbolicName = 'org.springframework.project.core'
+    }
+}
+
+project(':spring-project-aj') {
+    description = "Spring Project (Gradle) AspectJ"
+    bundlor {
+        bundleSymbolicName = 'org.springframework.project.aj'
+        importTemplate += [
+            "org.springframework.project.core.*;version=\"${project.version}\""
+        ]
+    }
+    dependencies {
+        compile project(':spring-project-core')
+    }
+}
+
+project(':') { // root project
+    apply plugin: 'docbook'
+    apply plugin: 'base'
+
+    task aggregatedJavadoc(type: Javadoc) {
+        source subprojects.collect { project ->
+            project.sourceSets.main.allJava
+        }
+        destinationDir = new File(buildDir, "docs/${project.version}/javadoc-api")
+        classpath = files(subprojects.collect { project ->
+            project.sourceSets.main.compileClasspath
+        })
+    }
+
+    task docsZip(type: Zip, dependsOn:[aggregatedJavadoc,docbookHtml]) {
+        classifier = 'docs'
+        from(buildDir) {
+            include 'docs/**/*'
+        }
+    }
+
+    task distZip(type: Zip, dependsOn:['aggregatedJavadoc']) {
+        classifier = 'dist'
+        from(rootDir) {
+            include 'README.md'
+        }
+        from('src/dist') {
+            include 'license.txt'
+            include 'notice.txt'
+        }
+        from(buildDir) {
+            include 'docs/**/*'
+        }
+        subprojects.each { subproject ->
+            dependsOn subproject.jar
+            dependsOn subproject.sourcesJar
+            dependsOn subproject.javadocJar
+            into('libs') {
+                from subproject.jar.archivePath
+                from subproject.sourcesJar.archivePath
+                from subproject.javadocJar.archivePath
+            }
+        }
+    }
+
+    artifacts {
+        archives distZip
+        archives docsZip
+    }
+
+    docbookHtml {
+        sourceFileName = 'index.xml'
+        stylesheet = file('src/reference/resources/xsl/html-custom.xsl')
+        classpath = buildscript.configurations.classpath
+        sourceDirectory = file('src/site/docbook/reference')
+        xdir = 'html'
+    }
+
+    repoUser = project.properties['REPO_USERNAME']
+    repoPass = project.properties['REPO_PASSWORD']
+
+    gradle.taskGraph.whenReady {taskGraph ->
+        if (taskGraph.hasTask(':artifactoryPublish') &&
+                (repoUser == null || repoPass == null)) {
+            logger.warn("'artifactoryPublish' goal specified, but " +
+                "REPO_USERNAME/REPO_PASSWORD properties have not been specified")
+        }
+    }
+
+    artifactory {
+        contextUrl = 'https://repo.springsource.org'
+        publish {
+            repository {
+                repoKey = 'libs-snapshot-local'
+                username = repoUser
+                password = repoPass
+            }
+            defaults {
+                publishConfigs('archives')
+            }
+        }
+        resolve {
+            repository {
+                repoKey = 'libs-releases'
+                username = repoUser
+                password = repoPass
+                maven = true
+            }
+        }
+    }
+}
+
+def customizePom(def pom, def gradleProject) {
+    pom.whenConfigured { generatedPom ->
+        // no need for test-scoped dependencies in maven central poms
+        generatedPom.dependencies.removeAll { dep ->
+            dep.scope == 'test'
+        }
+
+        // add all items necessary for maven central publication
+        generatedPom.project {
+            name = gradleProject.description
+            description = gradleProject.description
+            url = 'https://github.com/cbeams/spring-project'
+            organization {
+                name = 'SpringSource'
+                url = 'http://springsource.org'
+            }
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+            scm {
+                url = 'https://github.com/cbeams/spring-project'
+                connection = 'scm:git:git://github.com/cbeams/spring-project.git'
+                developerConnection = 'scm:git:git://github.com/cbeams/spring-project.git'
+            }
+            developers {
+                developer {
+                    id = 'cbeams'
+                    name = 'Chris Beams'
+                    email = 'cbeams@vmware.com'
+                }
+            }
+            contributors {
+                contributor {
+                    id = 'jdoe'
+                    name = 'John Doe'
+                    email = 'john@doe.org'
+                }
+            }
+        }
+    }
+}
+

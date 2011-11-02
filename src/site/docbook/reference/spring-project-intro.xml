@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="spring-foo-intro"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>Spring Project Introduction</title>
+
+  <para>Paragraph one</para>
+
+  <para>Paragraph two</para>
+
+  <para>Paragraph three</para>
+
+  <mediaobject>
+    <imageobject role="html">
+      <imagedata align="center"
+                 fileref="images/spring-batch-reference-model.png"
+                 format="PNG" scale="100" />
+    </imageobject>
+
+    <imageobject role="fo">
+      <imagedata align="center"
+                 fileref="images/spring-batch-reference-model.png"
+                 format="PNG" scale="55" />
+    </imageobject>
+
+    <caption><para>Figure 1.1: Spring Project Stereotypes</para></caption>
+  </mediaobject>
+
+  <section id="spring-foo-background">
+    <title>Background</title>
+
+    <para>Background details</para>
+
+    <para>Use Cases for Spring Project<itemizedlist>
+        <listitem>
+          <para>Use case one</para>
+        </listitem>
+
+        <listitem>
+          <para>Use case two</para>
+        </listitem>
+      </itemizedlist>
+    </para>
+  </section>
+
+</chapter>

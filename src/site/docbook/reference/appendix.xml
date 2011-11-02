@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<appendix xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="appendix-a"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>Appendix A</title>
+
+  <section id="appendix-sect-1">
+    <title>Section One</title>
+
+    <table>
+      <title>Table Title</title>
+
+      <tgroup cols="2">
+        <colspec align="center" />
+
+        <thead>
+          <row>
+            <entry align="center">Header Entry One</entry>
+
+            <entry align="center">Header Entry Two</entry>
+          </row>
+        </thead>
+
+        <tbody>
+          <row>
+            <entry align="left">Body Entry One</entry>
+
+            <entry align="left">Body Entry Two</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+</appendix>

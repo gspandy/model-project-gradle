@@ -1,0 +1,3 @@
+rootProject.name = 'spring-project'
+include 'spring-project-core'
+include 'spring-project-aj'
