@@ -4,27 +4,27 @@
   <title>Appendix A</title>
 
   <section id="appendix-sect-1">
-    <title>Section One</title>
+    <title>Section one</title>
 
     <table>
-      <title>Table Title</title>
+      <title>Table title</title>
 
       <tgroup cols="2">
         <colspec align="center" />
 
         <thead>
           <row>
-            <entry align="center">Header Entry One</entry>
+            <entry align="center">Header entry one</entry>
 
-            <entry align="center">Header Entry Two</entry>
+            <entry align="center">Header entry two</entry>
           </row>
         </thead>
 
         <tbody>
           <row>
-            <entry align="left">Body Entry One</entry>
+            <entry align="left">Body entry one</entry>
 
-            <entry align="left">Body Entry Two</entry>
+            <entry align="left">Body entry two</entry>
           </row>
         </tbody>
       </tgroup>

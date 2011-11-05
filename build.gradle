@@ -71,15 +71,15 @@ subprojects { subproj ->
     }
 }
 
-project(':spring-project-core') {
-    description = "Spring Project (Gradle) Core"
+project(':model-project-core') {
+    description = "Model Project Core"
     bundlor {
         bundleSymbolicName = 'org.springframework.project.core'
     }
 }
 
-project(':spring-project-aj') {
-    description = "Spring Project (Gradle) AspectJ"
+project(':model-project-aj') {
+    description = "Model Project AspectJ Support"
     bundlor {
         bundleSymbolicName = 'org.springframework.project.aj'
         importTemplate += [
@@ -87,7 +87,7 @@ project(':spring-project-aj') {
         ]
     }
     dependencies {
-        compile project(':spring-project-core')
+        compile project(':model-project-core')
     }
 }
 
@@ -194,7 +194,7 @@ def customizePom(def pom, def gradleProject) {
         generatedPom.project {
             name = gradleProject.description
             description = gradleProject.description
-            url = 'https://github.com/cbeams/spring-project'
+            url = 'https://github.com/cbeams/model-project-gradle'
             organization {
                 name = 'SpringSource'
                 url = 'http://springsource.org'
@@ -207,9 +207,9 @@ def customizePom(def pom, def gradleProject) {
                 }
             }
             scm {
-                url = 'https://github.com/cbeams/spring-project'
-                connection = 'scm:git:git://github.com/cbeams/spring-project.git'
-                developerConnection = 'scm:git:git://github.com/cbeams/spring-project.git'
+                url = 'https://github.com/cbeams/model-project-gradle'
+                connection = 'scm:git:git://github.com/cbeams/model-project-gradle.git'
+                developerConnection = 'scm:git:git://github.com/cbeams/model-project-gradle.git'
             }
             developers {
                 developer {

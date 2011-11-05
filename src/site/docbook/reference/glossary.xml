@@ -2,13 +2,19 @@
 <glossary xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="glossary"
     xmlns:xlink="http://www.w3.org/1999/xlink">
   <glossdiv>
-    <title>Spring Project Glossary</title>
+    <title>Model Project Glossary</title>
 
     <glossentry>
-      <glossterm>Foo</glossterm>
-
+      <glossterm>Glossary term one</glossterm>
       <glossdef>
-        <para>A metasyntactic variable</para>
+        <para>Glossary definition one</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>Glossary term two</glossterm>
+      <glossdef>
+        <para>Glossary definition two</para>
       </glossdef>
     </glossentry>
 

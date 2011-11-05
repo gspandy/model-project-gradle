@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="spring-foo-intro"
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="model-project-intro"
     xmlns:xlink="http://www.w3.org/1999/xlink">
-  <title>Spring Project Introduction</title>
+  <title>Model Project</title>
 
   <para>Paragraph one</para>
 
@@ -12,31 +12,33 @@
   <mediaobject>
     <imageobject role="html">
       <imagedata align="center"
-                 fileref="images/spring-batch-reference-model.png"
+                 fileref="images/spring-leaf.png"
                  format="PNG" scale="100" />
     </imageobject>
 
     <imageobject role="fo">
       <imagedata align="center"
-                 fileref="images/spring-batch-reference-model.png"
+                 fileref="images/spring-leaf.png"
                  format="PNG" scale="55" />
     </imageobject>
 
-    <caption><para>Figure 1.1: Spring Project Stereotypes</para></caption>
+    <caption><para>Figure 1.1: An example image</para></caption>
   </mediaobject>
 
-  <section id="spring-foo-background">
-    <title>Background</title>
+  <section id="model-project-background">
+    <title>Section one</title>
 
-    <para>Background details</para>
+    <para>Section details</para>
 
-    <para>Use Cases for Spring Project<itemizedlist>
+    <para>
+      Paragraph with itemized list
+      <itemizedlist>
         <listitem>
-          <para>Use case one</para>
+          <para>list item one</para>
         </listitem>
 
         <listitem>
-          <para>Use case two</para>
+          <para>list item two</para>
         </listitem>
       </itemizedlist>
     </para>

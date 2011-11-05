@@ -73,8 +73,8 @@
     <!-- let's have a Spring and I21 banner across the top of each page -->
     <xsl:template name="user.header.navigation">
         <div style="background-color:white;border:none;height:73px;border:1px solid black;">
-            <a style="border:none;" href="http://static.springframework.org/spring-batch/"
-               title="The Spring Framework - Spring Batch">
+            <a style="border:none;" href="http://static.springframework.org/model-project-gradle/"
+               title="Spring - Model Project">
                 <img style="border:none;" src="images/xdev-spring_logo.jpg"/>
             </a>
             <a style="border:none;" href="http://www.springsource.com/" title="SpringSource - Spring from the Source">
