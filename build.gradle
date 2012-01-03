@@ -149,14 +149,15 @@ project(':') { // root project
         xdir = 'html'
     }
 
-    repoUser = project.properties['REPO_USERNAME']
-    repoPass = project.properties['REPO_PASSWORD']
+    def repoUser = project.properties['REPO_USERNAME']
+    def repoPass = project.properties['REPO_PASSWORD']
 
     gradle.taskGraph.whenReady {taskGraph ->
         if (taskGraph.hasTask(':artifactoryPublish') &&
                 (repoUser == null || repoPass == null)) {
-            logger.warn("'artifactoryPublish' goal specified, but " +
-                "REPO_USERNAME/REPO_PASSWORD properties have not been specified")
+            logger.warn("WARNING: 'artifactoryPublish' goal specified, but " +
+                "REPO_USERNAME/REPO_PASSWORD properties have not been provided. " +
+                "Authorization may fail.")
         }
     }
 
