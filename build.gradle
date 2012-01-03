@@ -143,9 +143,9 @@ project(':') { // root project
 
     docbookHtml {
         sourceFileName = 'index.xml'
-        stylesheet = file('src/reference/resources/xsl/html-custom.xsl')
+        stylesheet = file('src/reference/style/custom/xsl/html-custom.xsl')
         classpath = buildscript.configurations.classpath
-        sourceDirectory = file('src/site/docbook/reference')
+        sourceDirectory = file('src/reference/content')
         xdir = 'html'
     }
 
