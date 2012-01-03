@@ -3,8 +3,8 @@ buildscript {
         maven { url 'https://repo.springsource.org/plugins-snapshot' }
     }
     dependencies {
-        classpath 'org.springframework.build.bundlor:gradle-bundlor-plugin:1.0.0-SNAPSHOT'
-        classpath 'org.springframework.build.docbook:gradle-docbook-plugin:1.0.0-SNAPSHOT'
+        classpath 'org.springframework.build.gradle:bundlor-plugin:0.1.0-SNAPSHOT'
+        classpath 'org.springframework.build.gradle:docbook-reference-plugin:0.1.0-SNAPSHOT'
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.0.x-SNAPSHOT'
     }
 }
@@ -140,6 +140,12 @@ project(':') { // root project
         archives distZip
         archives docsZip
     }
+
+    task dist(dependsOn: assemble) {
+        group = 'Distribution'
+        description = 'Builds -dist, -docs and -schema distribution archives.'
+    }
+
 
     docbookHtml {
         sourceFileName = 'index.xml'
