@@ -171,6 +171,11 @@ project(':') { // root project
             }
             defaults {
                 publishConfigs('archives')
+                properties {
+                    archives "*:*:*:docs@zip", type: 'docs-zip', deployed: 'false'
+                    archives "*:*:*:dist@zip", type: 'dist-zip', deployed: 'false'
+                    archives "*:*:*:schema@zip", type: 'schema-zip', deployed: 'false'
+                }
             }
         }
         resolve {
