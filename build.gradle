@@ -191,7 +191,31 @@ project(':') { // root project
 
 def customizePom(def pom, def gradleProject) {
     pom.whenConfigured { generatedPom ->
-        // no need for test-scoped dependencies in maven central poms
+        // respect 'optional' and 'provided' dependencies
+        def deps = gradleProject.configurations.runtime.allDependencies
+        def optionalDeps = deps.findAll { dep ->
+            dep.asDynamicObject.hasProperty('optional') && dep.optional
+        }
+        def providedDeps = deps.findAll { dep ->
+            dep.asDynamicObject.hasProperty('provided') && dep.provided
+        }
+        generatedPom.dependencies.each { mavenDep ->
+            mavenDep.optional = optionalDeps.any { optionalDep ->
+                optionalDep.group == mavenDep.groupId &&
+                        optionalDep.name == mavenDep.artifactId &&
+                        optionalDep.version == mavenDep.version
+            }
+            boolean isProvided = providedDeps.any { providedDep ->
+                providedDep.group == mavenDep.groupId &&
+                        providedDep.name == mavenDep.artifactId &&
+                        providedDep.version == mavenDep.version
+            }
+            if (isProvided) {
+                mavenDep.scope = 'provided'
+            }
+        }
+
+        // eliminate test-scoped dependencies (no need in maven central poms)
         generatedPom.dependencies.removeAll { dep ->
             dep.scope == 'test'
         }
