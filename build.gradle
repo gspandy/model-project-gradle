@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        mavenRepo url: 'https://repo.springsource.org/plugins-snapshot'
+        maven { url 'https://repo.springsource.org/plugins-snapshot' }
     }
     dependencies {
         classpath 'org.springframework.build.bundlor:gradle-bundlor-plugin:1.0.0-SNAPSHOT'
@@ -28,8 +28,8 @@ subprojects { subproj ->
     [compileJava, compileTestJava]*.options*.compilerArgs = [xLintArg]
 
     repositories {
-        mavenRepo url: 'https://repo.springsource.org/libs-snapshot'
-        mavenRepo url: 'https://repo.springsource.org/plugins-release'
+        maven { url 'https://repo.springsource.org/libs-snapshot' }
+        maven { url 'https://repo.springsource.org/plugins-release' }
     }
 
     dependencies {
