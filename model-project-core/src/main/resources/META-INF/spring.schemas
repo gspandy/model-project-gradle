@@ -1,0 +1,3 @@
+http\://www.springframework.org/schema/integration/model-project-1.0.xsd=schema/model-project-1.0.xsd
+http\://www.springframework.org/schema/integration/model-project-2.0.xsd=schema/model-project-2.0.xsd
+http\://www.springframework.org/schema/integration/model-project.xsd=schema/model-project-2.0.xsd

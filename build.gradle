@@ -1,3 +1,8 @@
+description = 'Model Project'
+
+apply plugin: 'base'
+apply plugin: 'idea'
+
 buildscript {
     repositories {
         maven { url 'https://repo.springsource.org/plugins-snapshot' }
@@ -14,7 +19,7 @@ allprojects {
     apply plugin: 'artifactory'
 }
 
-subprojects { subproj ->
+subprojects { subproject ->
     apply plugin: 'maven'
     apply plugin: 'java'
     apply plugin: 'eclipse'
@@ -24,8 +29,7 @@ subprojects { subproj ->
     sourceCompatibility = 1.6
     targetCompatibility = 1.6
 
-    xLintArg = '-Xlint:all'
-    [compileJava, compileTestJava]*.options*.compilerArgs = [xLintArg]
+    [compileJava, compileTestJava]*.options*.compilerArgs = ['-Xlint:all']
 
     repositories {
         maven { url 'https://repo.springsource.org/libs-snapshot' }
@@ -66,7 +70,7 @@ subprojects { subproj ->
 
     install {
         repositories.mavenInstaller {
-            customizePom(pom, subproj)
+            customizePom(pom, subproject)
         }
     }
 }
@@ -91,106 +95,150 @@ project(':model-project-aj') {
     }
 }
 
-project(':') { // root project
-    apply plugin: 'docbook'
-    apply plugin: 'base'
+apply plugin: 'docbook-reference'
 
-    task aggregatedJavadoc(type: Javadoc) {
-        source subprojects.collect { project ->
-            project.sourceSets.main.allJava
-        }
-        destinationDir = new File(buildDir, "docs/${project.version}/javadoc-api")
-        classpath = files(subprojects.collect { project ->
-            project.sourceSets.main.compileClasspath
-        })
+reference {
+    sourceDir = file('src/reference')
+}
+
+task aggregatedJavadoc(type: Javadoc) {
+    group = 'Documentation'
+    description = 'Generates aggregated Javadoc API documentation.'
+    source subprojects.collect { project ->
+        project.sourceSets.main.allJava
+    }
+    destinationDir = new File(buildDir, "api")
+    classpath = files(subprojects.collect { project ->
+        project.sourceSets.main.compileClasspath
+    })
+}
+
+task docsZip(type: Zip) {
+    group = 'Distribution'
+    description = "Builds -docs archive containing api and reference for " +
+                  "deployment at static.springframework.org/${rootProject.name}/docs."
+    classifier = 'docs'
+
+    from('src/dist') {
+        include 'changelog.txt'
     }
 
-    task docsZip(type: Zip, dependsOn:[aggregatedJavadoc,docbookHtml]) {
-        classifier = 'docs'
-        from(buildDir) {
-            include 'docs/**/*'
-        }
+    dependsOn aggregatedJavadoc
+    from (aggregatedJavadoc.destinationDir) {
+        into 'api'
     }
 
-    task distZip(type: Zip, dependsOn:['aggregatedJavadoc']) {
-        classifier = 'dist'
-        from(rootDir) {
-            include 'README.md'
+    dependsOn reference
+    from (buildDir) {
+        include 'reference/**/*'
+    }
+}
+
+task distZip(type: Zip) {
+    group = 'Distribution'
+    description = 'Builds -dist archive, containing all jars and docs, ' +
+                  'suitable for community download page.'
+    classifier = 'dist'
+
+    def baseDir = "${project.name}-${project.version}";
+
+    from('src/dist') {
+        include 'license.txt'
+        include 'notice.txt'
+        include 'readme.txt'
+        into "${baseDir}"
+    }
+
+    dependsOn docsZip
+    from(zipTree(docsZip.archivePath)) {
+        into "${baseDir}/docs"
+    }
+
+    subprojects.each { subproject ->
+        dependsOn subproject.jar
+        dependsOn subproject.sourcesJar
+        dependsOn subproject.javadocJar
+        into("${baseDir}/libs") {
+            from subproject.jar.archivePath
+            from subproject.sourcesJar.archivePath
+            from subproject.javadocJar.archivePath
         }
-        from('src/dist') {
-            include 'license.txt'
-            include 'notice.txt'
-        }
-        from(buildDir) {
-            include 'docs/**/*'
-        }
-        subprojects.each { subproject ->
-            dependsOn subproject.jar
-            dependsOn subproject.sourcesJar
-            dependsOn subproject.javadocJar
-            into('libs') {
-                from subproject.jar.archivePath
-                from subproject.sourcesJar.archivePath
-                from subproject.javadocJar.archivePath
+    }
+}
+
+task schemaZip(type: Zip) {
+    group = 'Distribution'
+    description = 'Builds -schema archive containing all XSDs for deployment ' +
+                  'at static.springframework.org/schema.'
+    classifier = 'schema'
+
+    subprojects.each { subproject ->
+        def Properties schemas = new Properties();
+        def shortName = subproject.name.replaceFirst("${rootProject.name}-", '')
+
+        subproject.sourceSets.main.resources.find {
+            it.path.endsWith('META-INF/spring.schemas')
+        }?.withInputStream { schemas.load(it) }
+
+        for (def key : schemas.keySet()) {
+            File xsdFile = subproject.sourceSets.main.resources.find {
+                it.path.endsWith(schemas.get(key))
+            }
+            assert xsdFile != null
+            into ("schema/${rootProject.name}/${shortName}") {
+                from xsdFile.path
             }
         }
     }
+}
 
-    artifacts {
-        archives distZip
-        archives docsZip
+artifacts {
+    archives distZip
+    archives docsZip
+    archives schemaZip
+}
+
+task dist(dependsOn: assemble) {
+    group = 'Distribution'
+    description = 'Builds -dist, -docs and -schema distribution archives.'
+}
+
+
+def repoUser = project.properties['REPO_USERNAME']
+def repoPass = project.properties['REPO_PASSWORD']
+
+gradle.taskGraph.whenReady {taskGraph ->
+    if (taskGraph.hasTask(':artifactoryPublish') &&
+            (repoUser == null || repoPass == null)) {
+        logger.warn("WARNING: 'artifactoryPublish' goal specified, but " +
+            "REPO_USERNAME/REPO_PASSWORD properties have not been provided. " +
+            "Authorization may fail.")
     }
+}
 
-    task dist(dependsOn: assemble) {
-        group = 'Distribution'
-        description = 'Builds -dist, -docs and -schema distribution archives.'
-    }
-
-
-    docbookHtml {
-        sourceFileName = 'index.xml'
-        stylesheet = file('src/reference/style/custom/xsl/html-custom.xsl')
-        classpath = buildscript.configurations.classpath
-        sourceDirectory = file('src/reference/content')
-        xdir = 'html'
-    }
-
-    def repoUser = project.properties['REPO_USERNAME']
-    def repoPass = project.properties['REPO_PASSWORD']
-
-    gradle.taskGraph.whenReady {taskGraph ->
-        if (taskGraph.hasTask(':artifactoryPublish') &&
-                (repoUser == null || repoPass == null)) {
-            logger.warn("WARNING: 'artifactoryPublish' goal specified, but " +
-                "REPO_USERNAME/REPO_PASSWORD properties have not been provided. " +
-                "Authorization may fail.")
+artifactory {
+    contextUrl = 'https://repo.springsource.org'
+    publish {
+        repository {
+            repoKey = 'libs-snapshot-local'
+            username = repoUser
+            password = repoPass
+        }
+        defaults {
+            publishConfigs('archives')
+            properties {
+                archives "*:*:*:docs@zip", type: 'docs-zip', deployed: 'false'
+                archives "*:*:*:dist@zip", type: 'dist-zip', deployed: 'false'
+                archives "*:*:*:schema@zip", type: 'schema-zip', deployed: 'false'
+            }
         }
     }
-
-    artifactory {
-        contextUrl = 'https://repo.springsource.org'
-        publish {
-            repository {
-                repoKey = 'libs-snapshot-local'
-                username = repoUser
-                password = repoPass
-            }
-            defaults {
-                publishConfigs('archives')
-                properties {
-                    archives "*:*:*:docs@zip", type: 'docs-zip', deployed: 'false'
-                    archives "*:*:*:dist@zip", type: 'dist-zip', deployed: 'false'
-                    archives "*:*:*:schema@zip", type: 'schema-zip', deployed: 'false'
-                }
-            }
-        }
-        resolve {
-            repository {
-                repoKey = 'libs-releases'
-                username = repoUser
-                password = repoPass
-                maven = true
-            }
+    resolve {
+        repository {
+            repoKey = 'libs-releases'
+            username = repoUser
+            password = repoPass
+            maven = true
         }
     }
 }
