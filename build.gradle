@@ -173,22 +173,19 @@ task distZip(type: Zip, dependsOn: [docsZip, schemaZip]) {
         into "${baseDir}"
     }
 
-    from(zipTree(docsZip.archivePath)) {
+    from(zipTree(docsZip)) {
         into "${baseDir}/docs"
     }
 
-    from(zipTree(schemaZip.archivePath)) {
+    from(zipTree(schemaZip)) {
         into "${baseDir}/schema"
     }
 
     subprojects.each { subproject ->
-        dependsOn subproject.jar
-        dependsOn subproject.sourcesJar
-        dependsOn subproject.javadocJar
         into("${baseDir}/libs") {
-            from subproject.jar.archivePath
-            from subproject.sourcesJar.archivePath
-            from subproject.javadocJar.archivePath
+            from subproject.jar
+            from subproject.sourcesJar
+            from subproject.javadocJar
         }
     }
 }
