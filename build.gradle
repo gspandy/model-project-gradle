@@ -176,11 +176,11 @@ task distZip(type: Zip, dependsOn: [docsZip, schemaZip]) {
         into "${baseDir}"
     }
 
-    from(zipTree(docsZip)) {
+    from(zipTree(docsZip.archivePath)) {
         into "${baseDir}/docs"
     }
 
-    from(zipTree(schemaZip)) {
+    from(zipTree(schemaZip.archivePath)) {
         into "${baseDir}/schema"
     }
 
@@ -201,7 +201,7 @@ task depsZip(type: Zip, dependsOn: distZip) { zipTask ->
     description = "Builds -${classifier} archive, containing everything " +
         "in the -${distZip.classifier} archive plus all dependencies."
 
-    from zipTree(distZip)
+    from zipTree(distZip.archivePath)
 
     gradle.taskGraph.whenReady { taskGraph ->
         if (taskGraph.hasTask(":${zipTask.name}")) {
