@@ -14,29 +14,10 @@
  * limitations under the License.
  */
 
-package org.springframework.project.aj;
-
-import org.apache.log4j.Logger;
-import org.springframework.project.core.Core;
+package org.springframework.project.core;
 
 /**
- * An example AspectJ aspect.
- * TODO: convert to an actual .aj aspect
+ * A example package-private class that should not show up in public API Javadoc.
  */
-public class AnAspect {
-
-	private static final Logger logger = Logger.getLogger(AnAspect.class);
-
-	private final Core core;
-
-	public AnAspect(Core core) {
-		this.core = core;
-		if (logger.isTraceEnabled()) {
-			logger.trace("Create " + this);
-		}
-	}
-
-	public Core getCore() {
-		return this.core;
-	}
+class PackagePrivate {
 }

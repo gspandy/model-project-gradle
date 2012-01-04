@@ -5,6 +5,7 @@ apply plugin: 'idea'
 
 buildscript {
     repositories {
+        mavenLocal()
         maven { url 'https://repo.springsource.org/plugins-snapshot' }
     }
     dependencies {
@@ -53,14 +54,14 @@ subprojects { subproject ->
         ]
     }
 
-    task sourcesJar(type: Jar, dependsOn:classes) {
+    task sourcesJar(type: Jar) {
         classifier = 'sources'
-        from sourceSets.main.allSource
+        from sourceSets.main.allJava
     }
 
-    task javadocJar(type: Jar, dependsOn:javadoc) {
+    task javadocJar(type: Jar) {
         classifier = 'javadoc'
-        from javadoc.destinationDir
+        from javadoc
     }
 
     artifacts {
@@ -101,9 +102,11 @@ reference {
     sourceDir = file('src/reference')
 }
 
-task aggregatedJavadoc(type: Javadoc) {
+task api(type: Javadoc) { task ->
     group = 'Documentation'
-    description = 'Generates aggregated Javadoc API documentation.'
+    description = 'Generates aggregated public API Javadoc including all subprojects.'
+    options.overview = 'src/api/overview.html'
+    options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
     source subprojects.collect { project ->
         project.sourceSets.main.allJava
     }
@@ -113,30 +116,30 @@ task aggregatedJavadoc(type: Javadoc) {
     })
 }
 
-task docsZip(type: Zip, dependsOn: [aggregatedJavadoc, reference]) {
+task docsZip(type: Zip) {
     group = 'Distribution'
-    description = "Builds -docs archive containing api and reference for " +
-                  "deployment at static.springframework.org/${rootProject.name}/docs."
     classifier = 'docs'
+    description = "Builds -${classifier} archive containing api and reference " +
+        "for deployment at static.springframework.org/${rootProject.name}/docs."
 
     from('src/dist') {
         include 'changelog.txt'
     }
 
-    from (aggregatedJavadoc.destinationDir) {
+    from (api) {
         into 'api'
     }
 
-    from (buildDir) {
-        include 'reference/**/*'
+    from (reference) {
+        into 'reference'
     }
 }
 
 task schemaZip(type: Zip) {
     group = 'Distribution'
-    description = 'Builds -schema archive containing all XSDs for deployment ' +
-                  'at static.springframework.org/schema.'
     classifier = 'schema'
+    description = "Builds -${classifier} archive containing all " +
+        "XSDs for deployment at static.springframework.org/schema."
 
     subprojects.each { subproject ->
         def Properties schemas = new Properties();
@@ -160,9 +163,9 @@ task schemaZip(type: Zip) {
 
 task distZip(type: Zip, dependsOn: [docsZip, schemaZip]) {
     group = 'Distribution'
-    description = 'Builds -dist archive, containing all jars and docs, ' +
-                  'suitable for community download page.'
     classifier = 'dist'
+    description = "Builds -${classifier} archive, containing all " +
+        "jars, docs and schema, suitable for community download page."
 
     baseDir = "${project.name}-${project.version}";
 
@@ -194,10 +197,11 @@ task distZip(type: Zip, dependsOn: [docsZip, schemaZip]) {
 // Not published by default; only for use when building from source.
 task depsZip(type: Zip, dependsOn: distZip) { zipTask ->
     group = 'Distribution'
-    description = 'Builds -dist-with-deps archive.'
     classifier = 'dist-with-deps'
+    description = "Builds -${classifier} archive, containing everything " +
+        "in the -${distZip.classifier} archive plus all dependencies."
 
-    from zipTree(distZip.archivePath)
+    from zipTree(distZip)
 
     gradle.taskGraph.whenReady { taskGraph ->
         if (taskGraph.hasTask(":${zipTask.name}")) {
@@ -227,7 +231,8 @@ artifacts {
 
 task dist(dependsOn: assemble) {
     group = 'Distribution'
-    description = 'Builds -dist, -docs and -schema distribution archives.'
+    description = "Builds -${distZip.classifier}, -${docsZip.classifier} " +
+        "and -${schemaZip.classifier} distribution archives."
 }
 
 
