@@ -329,20 +329,6 @@ def customizePom(def pom, def gradleProject) {
                 connection = 'scm:git:git://github.com/cbeams/model-project-gradle.git'
                 developerConnection = 'scm:git:git://github.com/cbeams/model-project-gradle.git'
             }
-            developers {
-                developer {
-                    id = 'cbeams'
-                    name = 'Chris Beams'
-                    email = 'cbeams@vmware.com'
-                }
-            }
-            contributors {
-                contributor {
-                    id = 'jdoe'
-                    name = 'John Doe'
-                    email = 'john@doe.org'
-                }
-            }
         }
     }
 }
