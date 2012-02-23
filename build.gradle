@@ -10,8 +10,8 @@ buildscript {
     }
     dependencies {
         classpath 'org.springframework.build.gradle:bundlor-plugin:0.1.0-SNAPSHOT'
-        classpath 'org.springframework.build.gradle:docbook-reference-plugin:0.1.0-SNAPSHOT'
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.0.x-SNAPSHOT'
+        classpath 'org.springframework.build.gradle:docbook-reference-plugin:0.1.3'
     }
 }
 
